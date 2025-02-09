@@ -1,0 +1,52 @@
+MACHINE LEARNING MODEL IMPLEMENTATION
+code:# Install necessary libraries
+!pip install scikit-learn pandas
+
+# Import libraries
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.metrics import accuracy_score
+
+# Predefined dataset (sample messages)
+data = {
+    'label': ['ham', 'spam', 'ham', 'spam', 'ham'],
+    'message': [
+        "Hey, are we still on for dinner tonight?",
+        "Congratulations! You have won a $1000 gift card. Click here to claim.",
+        "Don't forget to submit your assignment by tomorrow.",
+        "Urgent! Your account has been compromised. Respond immediately.",
+        "Looking forward to our meeting next week."
+    ]
+}
+
+# Convert the data to a pandas DataFrame
+df = pd.DataFrame(data)
+
+# Preprocess data
+X = df['message']
+y = df['label'].map({'ham': 0, 'spam': 1})  # Encode 'ham' as 0 and 'spam' as 1
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# Feature extraction using CountVectorizer
+vectorizer = CountVectorizer()
+X_train_vec = vectorizer.fit_transform(X_train)
+X_test_vec = vectorizer.transform(X_test)
+
+# Train a Naive Bayes classifier
+model = MultinomialNB()
+model.fit(X_train_vec, y_train)
+
+# Evaluate the model
+y_pred = model.predict(X_test_vec)
+print(f"Accuracy: {accuracy_score(y_test, y_pred) * 100:.2f}%")
+
+# Optional: Predict and classify new messages
+new_messages = ["You have won a free trip to Hawaii!", "Let's catch up for lunch."]
+new_messages_vec = vectorizer.transform(new_messages)
+predictions = model.predict(new_messages_vec)
+
+# Output the classification results
+for msg, pred in zip(new_messages, predictions):
+    print(f"Message: '{msg}' => {'Spam' if pred == 1 else 'Ham'}")
